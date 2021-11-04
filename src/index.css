@@ -36,6 +36,10 @@
   font-size: 45px;
 }
 
+button{
+  cursor: pointer;
+}
+
 .number {
   background-color: #eee;
   border: thin solid #ddd;
