@@ -31,18 +31,14 @@ const PlayButton = ({number, status, clickHandler}) => (
   </button>
 );
 
-
-// STAR MATCH - Starting Template
-
-const Game = ({startNewGame}) => {
+//Custom Hook
+const useGameState = () => {
   const [stars, setStars] = React.useState(utils.random(1,9));
   const [candidateNums, setCandidateNums] = React.useState([]);
   const [availableNums, setAvailableNums] = React.useState(utils.range(1,9));
   const [secondsLeft, setSecondsLeft] = React.useState(10)
 
-  //setInterval or setTimeout
-  React.useEffect(() => {
-
+  useEffect(() => {
     if(secondsLeft > 0 && availableNums.length > 0){
       const timerId = setTimeout(() => {
         setSecondsLeft(secondsLeft - 1);
@@ -52,25 +48,35 @@ const Game = ({startNewGame}) => {
 
   });
 
-  const candidateAreWrong = utils.sum(candidateNums) > stars;
+  const setGameState = (newCandidateNums) => {
+    if(utils.sum(newCandidateNums) !== stars){
+      setCandidateNums(newCandidateNums);
+    } else {
+      const newAvailableNums = availableNums.filter((num) => {
+        return (newCandidateNums.includes(num)) ? false : true;
+      });
+      //redraw number of stars (only playable ones) randomSumIn
+      setStars(utils.randomSumIn(newAvailableNums, 9));
+      setAvailableNums(newAvailableNums);
+      setCandidateNums([]);
+    }
+  }  
 
-  //const  gameIsWon = availableNums.length === 0;
-  //const gameIsLost = secondsLeft === 0;
+  return {stars, availableNums, candidateNums, secondsLeft, setGameState };
+}
+
+
+
+// STAR MATCH - Starting Template
+const Game = ({startNewGame}) => {
+
+  const {stars, availableNums, candidateNums, secondsLeft, setGameState } = useGameState();
+
+  const candidateAreWrong = utils.sum(candidateNums) > stars;
 
   const gameStatus = availableNums.length === 0
     ? 'won'
     : secondsLeft === 0 ? 'lost' : 'active'
-
-
-  //Getting rid of resetGame function and change to unmount and remount
-  /*
-  const resetGame = () => {
-    setStars(utils.random(1,9));
-    setCandidateNums([]);
-    setAvailableNums(utils.range(1,9))
-    setSecondsLeft(10);
-  }
-  */
 
   //numberStatus function
   const numberStatus = (number) => {
@@ -95,20 +101,7 @@ const Game = ({startNewGame}) => {
       ?  [...candidateNums,number]
       : candidateNums.filter(cn => cn !== number);
     
-   
-    
-    
-    if(utils.sum(newCandidateNums) !== stars){
-      setCandidateNums(newCandidateNums);
-    } else {
-      const newAvailableNums = availableNums.filter((num) => {
-        return (newCandidateNums.includes(num)) ? false : true;
-      });
-      //redraw number of stars (only playable ones) randomSumIn
-      setStars(utils.randomSumIn(newAvailableNums, 9));
-      setAvailableNums(newAvailableNums);
-      setCandidateNums([]);
-    }
+    setGameState(newCandidateNums);
 
   }
 
