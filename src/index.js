@@ -34,7 +34,7 @@ const PlayButton = ({number, status, clickHandler}) => (
 
 // STAR MATCH - Starting Template
 
-const StarMatch = () => {
+const Game = ({startNewGame}) => {
   const [stars, setStars] = React.useState(utils.random(1,9));
   const [candidateNums, setCandidateNums] = React.useState([]);
   const [availableNums, setAvailableNums] = React.useState(utils.range(1,9));
@@ -62,13 +62,15 @@ const StarMatch = () => {
     : secondsLeft === 0 ? 'lost' : 'active'
 
 
-
+  //Getting rid of resetGame function and change to unmount and remount
+  /*
   const resetGame = () => {
     setStars(utils.random(1,9));
     setCandidateNums([]);
     setAvailableNums(utils.range(1,9))
     setSecondsLeft(10);
   }
+  */
 
   //numberStatus function
   const numberStatus = (number) => {
@@ -122,7 +124,7 @@ const StarMatch = () => {
         <div className="left">
           {
             gameStatus !== 'active'
-            ? <PlayAgain clickHandler={resetGame} gameStatus={gameStatus}/> 
+            ? <PlayAgain clickHandler={startNewGame} gameStatus={gameStatus}/> 
             : <StarsDisplay count={stars} />
           }
         </div>
@@ -143,6 +145,11 @@ const StarMatch = () => {
   );
 };
 
+//Game Component
+const StarMatch = () => {
+  const [gameId, setGameId] = React.useState(0);
+  return <Game key={gameId} startNewGame={() => setGameId(gameId + 1)}/> 
+}
 
 
 // Color Theme
@@ -185,4 +192,6 @@ const utils = {
 };
 
 const root = document.getElementById('root');
-ReactDOM.render(<StarMatch />, root);
+ReactDOM.render(
+  <StarMatch />
+  , root);
